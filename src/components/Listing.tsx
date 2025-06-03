@@ -20,7 +20,6 @@ interface ListingProps {
   items: RawItem[];
 }
 
-// Маппинг строго типизирован: принимает только RawItem
 function toListingItem(item: RawItem): ListingItem | null {
   if (
     typeof item.listing_id !== "number" ||
