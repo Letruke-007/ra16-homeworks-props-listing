@@ -12,8 +12,7 @@ export interface RawItem {
   currency_code?: string;
   price?: string;
   quantity?: number;
-  [key: string]: unknown; // позволяет дополнительные поля, не нарушая типизацию
-}
+  [key: string]: unknown;
 
 export interface MainImage {
   url_570xN: string;
