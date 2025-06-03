@@ -1,17 +1,12 @@
 import React from "react";
-import { ListingItem } from "../types";
-
-type RawItem = any;
+import { RawItem, ListingItem } from "../types";
 
 function formatPrice(price: string, currency: string): string {
   const num = Number(price);
   switch (currency) {
-    case "USD":
-      return `$${num.toFixed(2)}`;
-    case "EUR":
-      return `€${num.toFixed(2)}`;
-    default:
-      return `${num.toFixed(2)} ${currency}`;
+    case "USD": return `$${num.toFixed(2)}`;
+    case "EUR": return `€${num.toFixed(2)}`;
+    default: return `${num.toFixed(2)} ${currency}`;
   }
 }
 
@@ -21,15 +16,25 @@ function getQuantityLevelClass(quantity: number): string {
   return "level-high";
 }
 
-function toListingItem(item: any): ListingItem | null {
+interface ListingProps {
+  items: RawItem[];
+}
+
+// Маппинг строго типизирован: принимает только RawItem
+function toListingItem(item: RawItem): ListingItem | null {
   if (
-    !item ||
-    !item.listing_id ||
-    !item.url ||
+    typeof item.listing_id !== "number" ||
+    typeof item.url !== "string" ||
     !item.MainImage ||
-    !item.MainImage.url_570xN
-  )
+    typeof item.MainImage.url_570xN !== "string" ||
+    typeof item.title !== "string" ||
+    typeof item.currency_code !== "string" ||
+    typeof item.price !== "string" ||
+    typeof item.quantity !== "number"
+  ) {
     return null;
+  }
+
   return {
     listing_id: item.listing_id,
     url: item.url,
@@ -41,10 +46,6 @@ function toListingItem(item: any): ListingItem | null {
   };
 }
 
-interface ListingProps {
-  items: RawItem[];
-}
-
 export const Listing: React.FC<ListingProps> = ({ items }) => {
   const filtered = items
     .map(toListingItem)
@@ -52,7 +53,7 @@ export const Listing: React.FC<ListingProps> = ({ items }) => {
 
   return (
     <div className="item-list">
-      {filtered.map((item) => (
+      {filtered.map(item => (
         <div className="item" key={item.listing_id}>
           <div className="item-image">
             <a href={item.url}>
@@ -61,18 +62,10 @@ export const Listing: React.FC<ListingProps> = ({ items }) => {
           </div>
           <div className="item-details">
             <p className="item-title">
-              {item.title.length > 50
-                ? item.title.slice(0, 50) + "…"
-                : item.title}
+              {item.title.length > 50 ? item.title.slice(0, 50) + "…" : item.title}
             </p>
-            <p className="item-price">
-              {formatPrice(item.price, item.currency_code)}
-            </p>
-            <p
-              className={`item-quantity ${getQuantityLevelClass(
-                item.quantity
-              )}`}
-            >
+            <p className="item-price">{formatPrice(item.price, item.currency_code)}</p>
+            <p className={`item-quantity ${getQuantityLevelClass(item.quantity)}`}>
               {item.quantity} left
             </p>
           </div>
